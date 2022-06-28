@@ -1,0 +1,146 @@
+import React, { useEffect, useState } from "react";
+import { gql, useApolloClient, useQuery } from "@apollo/client";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+const ALL_MOVIES = gql`
+  query getMovies {
+    allMovies {
+      id
+      title
+      medium_cover_image
+    }
+    allTweets {
+      id
+      text
+      author {
+        fullName
+      }
+    }
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
+const Header = styled.header`
+  background-image: linear-gradient(-45deg, #d754ab, #fd723a);
+  height: 45vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const Title = styled.h1`
+  font-size: 60px;
+  font-weight: 600;
+  margin-bottom: 20px;
+`;
+
+const Loading = styled.div`
+  font-size: 18px;
+  opacity: 0.5;
+  font-weight: 500;
+  margin-top: 10px;
+`;
+
+const MoviesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 25px;
+  width: 60%;
+  position: relative;
+  top: -50px;
+`;
+
+const PosterContainer = styled.div`
+  height: 400px;
+  border-radius: 7px;
+  width: 100%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  background-color: transparent;
+`;
+
+const PosterBg = styled.div`
+  background-image: url(${(props) => props.background});
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: center center;
+  border-radius: 7px;
+`;
+
+function Movies() {
+  const { data, loading, error } = useQuery(ALL_MOVIES); // 선언형 코드
+
+  // // 데이터 불러오고 있을때
+  // if (loading) {
+  //   return <h1>Loding...</h1>;
+  // }
+  // // 서버에서 데이터를 가져오지 못할때
+  // if (error) {
+  //   return <h1>Could not fetch :(</h1>;
+  // }
+  return (
+    <Container>
+      <Header>
+        <Title>Apollo Movies</Title>
+      </Header>
+      {loading && <Loading>Loading...</Loading>}
+      {error && <Loading>Loading...</Loading>}
+      <MoviesGrid>
+        {data?.allMovies?.map((movie) => (
+          <PosterContainer key={movie.id}>
+            <Link to={`/movies/${movie.id}`}>
+              <PosterBg background={movie.medium_cover_image} />
+            </Link>
+          </PosterContainer>
+        ))}
+      </MoviesGrid>
+    </Container>
+  );
+}
+
+export default Movies;
+
+/*
+		function Movies() {
+  const { data, loading, error } = useQuery(ALL_MOVIES); // 선언형 코드
+
+  // 데이터 불러오고 있을때
+  if (loading) {
+    return <h1>Loding...</h1>;
+  }
+  // 서버에서 데이터를 가져오지 못할때
+  if (error) {
+    return <h1>Could not fetch :(</h1>;
+  }
+  return (
+    <ul>
+      <h1>Movies</h1>
+      {data.allMovies.map((movieData) => (
+        <li key={movieData.id}>
+          <Link to={`/movies/${movieData.id}`}>
+            [{movieData.id}] 제목: {movieData.title}{" "}
+          </Link>
+        </li>
+      ))}
+      <h1>Tweets</h1>
+      {data.allTweets.map((tweetData) => (
+        <li key={tweetData.id}>
+          [{tweetData.id}] 트윗: [{tweetData.author.fullName}] {tweetData.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default Movies;
+		*/
